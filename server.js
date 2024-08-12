@@ -42,6 +42,11 @@ wss.on('connection', (ws) => {
 app.post('/api/download', (req, res) => {
     const { url } = req.body;
 
+    // Validate URL
+    if (!url || !url.startsWith('http')) {
+        return res.status(400).send('Invalid URL');
+    }
+
     // Use the full path to yt-dlp
     const downloadProcess = exec(`"${ytDlpPath}" --newline -f best -o "${filePath}" "${url}"`);
 
@@ -57,8 +62,7 @@ app.post('/api/download', (req, res) => {
     downloadProcess.on('close', (code) => {
         if (code !== 0) {
             console.error('Error downloading the video');
-            res.status(500).send('Error downloading the video');
-            return;
+            return res.status(500).send('Error downloading the video');
         }
 
         // Set headers and send the file to the client
@@ -66,11 +70,16 @@ app.post('/api/download', (req, res) => {
         res.download(filePath, 'video.mp4', (err) => {
             if (err) {
                 console.error('Error sending the file:', err);
-                res.status(500).send('Error sending the file');
+                return res.status(500).send('Error sending the file');
             } else {
                 fs.unlinkSync(filePath); // Delete the file after sending it
             }
         });
+    });
+
+    downloadProcess.on('error', (err) => {
+        console.error('Error during download process:', err);
+        res.status(500).send('Error during download process');
     });
 });
 
