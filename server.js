@@ -17,7 +17,7 @@ const filePath = path.resolve('/tmp', 'video.mp4');
 // Ensure yt-dlp is available
 if (!fs.existsSync(ytDlpPath)) {
     try {
-        execSync(`curl -L https://yt-dlp.org/downloads/latest/yt-dlp -o ${ytDlpPath}`);
+        execSync(`curl -L http://yt-dlp.org/downloads/latest/yt-dlp -o ${ytDlpPath}`);
         fs.chmodSync(ytDlpPath, '755');
     } catch (error) {
         console.error('Failed to download yt-dlp:', error);
